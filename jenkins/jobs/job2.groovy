@@ -2,7 +2,7 @@
 // - build custom nginx image and push to docker hub
 
 pipeline {
-    agent {label 'docker'}
+    agent any
     environment {
         IMAGE = "elcosah/nginx-elbit"
     }

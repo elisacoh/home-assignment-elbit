@@ -3,7 +3,7 @@
 // - expose only nginx port on local jenkins machine
 // - verify request returns 200
 pipeline {
-    agent {label 'docker'}
+    agent any
     environment {
         FLASK_IMAGE  = "elcosah/flaskapp-elbit:latest"
         NGINX_IMAGE  = "elcosah/nginx-elbit:latest"

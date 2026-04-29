@@ -3,7 +3,7 @@
 // - build docker container and push it to docker hub
 
 pipeline {
-    agent {label 'docker'}
+    agent any
 
     environment {
         IMAGE = "elcosah/flaskapp-elbit"
