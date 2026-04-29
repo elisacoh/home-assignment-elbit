@@ -30,9 +30,6 @@ tests/
 *.pem
 *.key
 
-# Docker / compose files (optional)
-Dockerfile.multistage
-docker-compose.yml
-deploy/
+
 
 elisa_usr@*
