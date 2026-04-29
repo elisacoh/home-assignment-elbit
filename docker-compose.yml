@@ -1,4 +1,4 @@
-#nginx/docker-compose.yml
+#docker-compose.yml
 
 services:
     socker-proxy:

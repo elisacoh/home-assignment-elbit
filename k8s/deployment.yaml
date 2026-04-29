@@ -19,7 +19,8 @@ spec:
       containers:
         - name: flask-app
           image: elcosah/flaskapp-elbit:latest
-          imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
+
           ports:
             - containerPort: 5000
           env:

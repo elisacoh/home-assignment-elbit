@@ -10,22 +10,21 @@ pipeline {
     }
 
     stages {
-        stage('INFO')
-        {
-            steps{
+        stage('Checkout') {
+            steps {
+                checkout scm
                 script {
                     env.TAG = env.GIT_COMMIT.take(7)
                 }
-            sh 'echo "$GIT_COMMIT"'
-            sh 'echo "TAG=$TAG"'
-            sh 'echo "IMAGE=$IMAGE"'
             }
         }
-        stage('Checkout'){
-            steps{
-                checkout scm
+        stage('INFO') {
+            steps {
+                sh 'echo "TAG=$TAG"'
+                sh 'echo "IMAGE=$IMAGE"'
             }
         }
+
 
         stage('Build') {
             steps {
@@ -63,7 +62,21 @@ pipeline {
 
 post {
     success {
+        script {
+            try {
+                slackSend(channel: '#ci-cd', color: 'good',
+                    message: "SUCCESS *${env.JOB_NAME}* #${env.BUILD_NUMBER} succeeded — Flask image pushed\n${env.BUILD_URL}")
+            } catch(e) { echo "Slack notification failed: ${e}" }
+        }
         build job: 'job2-build-nginx'
+    }
+    failure {
+        script {
+            try {
+                slackSend(channel: '#ci-cd', color: 'danger',
+                    message: "FAILURE: *${env.JOB_NAME}* #${env.BUILD_NUMBER} failed\n${env.BUILD_URL}")
+            } catch(e) { echo "Slack notification failed: ${e}" }
+        }
     }
     always {
         echo "Done"

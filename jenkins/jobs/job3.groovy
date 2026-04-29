@@ -78,20 +78,34 @@ pipeline {
                 '''
             }
         }
-        stage('Verify') {
-            steps {
-                echo "Send request and verify response is 200"
-                sh '''
-                    set -eux
-                    sleep 3
-                    DOCKER_HOST_IP=$(ip route | awk '/default/ { print $3 }')
-                    curl -f http://$DOCKER_HOST_IP:8989/health
-                    curl -f http://$DOCKER_HOST_IP:8989/containers
-                '''
+            stage('Verify') {
+                steps {
+                    echo "Send request and verify response is 200"
+                    sh '''
+                        set -eux
+                        curl --retry 5 --retry-delay 2 --retry-connrefused -f http://localhost:8989/health
+                        curl --retry 5 --retry-delay 2 --retry-connrefused -f http://localhost:8989/containers
+                    '''
+                }
             }
-        }
     }
     post {
+        success {
+            script {
+                try {
+                    slackSend(channel: '#ci-cd', color: 'good',
+                        message: "SUCCESS: *${env.JOB_NAME}* #${env.BUILD_NUMBER} — Integration test passed\n${env.BUILD_URL}")
+                } catch(e) { echo "Slack notification failed: ${e}" }
+            }
+        }
+        failure {
+            script {
+                try {
+                    slackSend(channel: '#ci-cd', color: 'danger',
+                        message: "FAILURE: *${env.JOB_NAME}* #${env.BUILD_NUMBER} — Integration test FAILED\n${env.BUILD_URL}")
+                } catch(e) { echo "Slack notification failed: ${e}" }
+            }
+        }
         always {
             echo "Cleanup containers and network"
             sh '''

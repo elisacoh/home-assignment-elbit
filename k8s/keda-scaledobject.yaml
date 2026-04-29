@@ -10,9 +10,9 @@ spec:
   minReplicaCount: 1
   maxReplicaCount: 5
   triggers:
-    - type: cron
+    - type: prometheus
       metadata:
-        timezone: "Asia/Jerusalem"
-        start: "0 8 * * *"   
-        end: "0 20 * * *"
-        desiredReplicas: "3"
+        serverAddress: http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
+        metricName: http_requests_total
+        query: sum(rate(http_requests_total[2m]))
+        threshold: "5"
