@@ -32,7 +32,7 @@ pipeline {
                 echo "BUild Docker image"
                 sh '''
                     set -eux
-                    docker build -f flask-app/Dockerfile.multistage -t "$IMAGE:$TAG" .
+                    docker build -f flask-app/Dockerfile.multistage -t "$IMAGE:$TAG" ./flask-app
                 '''
             }
         }
