@@ -1,0 +1,18 @@
+# k8s/keda-scaledobject.yaml
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: flask-app-scaledobject
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: flask-app
+  minReplicaCount: 1
+  maxReplicaCount: 5
+  triggers:
+    - type: cron
+      metadata:
+        timezone: "Asia/Jerusalem"
+        start: "0 8 * * *"   
+        end: "0 20 * * *"
+        desiredReplicas: "3"

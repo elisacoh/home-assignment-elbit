@@ -15,7 +15,7 @@ RUN pip wheel --no-cache-dir --wheel-dir /wheels -r requirements.txt
 # RUNTIME STAGE
 FROM python:3.12-slim AS runtime
 
-RUN useradd -m appuser && usermod -aG docker appuser
+RUN useradd -m appuser && groupadd -f docker && usermod -aG docker appuser
 
 WORKDIR /app
 
