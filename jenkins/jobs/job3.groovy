@@ -71,8 +71,9 @@ pipeline {
                 sh '''
                     set -eux
                     sleep 3
-                    curl -f http://127.0.0.1:$NGINX_PORT/health
-                    curl -f http://127.0.0.1:$NGINX_PORT/containers
+                    DOCKER_HOST_IP=$(ip route | awk '/default/ { print $3 }')
+                    curl -f http://$DOCKER_HOST_IP:8989/health
+                    curl -f http://$DOCKER_HOST_IP:8989/containers
                 '''
             }
         }
