@@ -63,6 +63,7 @@ pipeline {
 
     post {
         always {
+            echo "Done"
         }
     }
 
