@@ -1,17 +1,28 @@
 #nginx/docker-compose.yml
 
 services:
+    socker-proxy:
+        image: tecnativa/docker-socket-proxy
+        container_name: socket-proxy
+        environment:
+            CONTAINERS: 1
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+        restart: unless-stopped
     web:
         build:
             context: ..
-            dockerfile: Dockerfile.multistage
+            dockerfile: flask-app/Dockerfile.multistage
         image: flask-app:clean
         expose:
             - "5000"
+        depends_on:
+            - socker-proxy
         restart: unless-stopped
         environment:
             - PYTHONBUFFERED=1
             - PYTHONDONTWRITEBYTECODE=1
+            - DOCKER_HOST=tcp://socket-proxy:2375
 
     nginx:
         image: nginx:alpine

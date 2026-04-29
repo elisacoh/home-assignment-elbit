@@ -24,7 +24,7 @@ pipeline {
                 echo "Remove any existing containers and network"
                 sh '''
                     set -eux
-                    docker rm -f $FLASK_CONTAINER $NGINX_CONTAINER 2>/dev/null || true
+                    docker rm -f $FLASK_CONTAINER $NGINX_CONTAINER socket-proxy 2>/dev/null || true
                     docker network rm $NETWORK 2>/dev/null || true
                 '''
             }
@@ -38,6 +38,20 @@ pipeline {
                 '''
             }
         }
+
+        stage('Run Socket Proxy') {
+            steps {
+                sh '''
+                    set -eux
+                    docker run -d \
+                        --name socket-proxy \
+                        --network $NETWORK \
+                        -e CONTAINERS=1 \
+                        -v /var/run/docker.sock:/var/run/docker.sock:ro \
+                        tecnativa/docker-socket-proxy
+                '''
+            }
+        }
         stage('Run Flask') {
             steps {
                 echo "Start flask container (not exposed to host)"
@@ -46,8 +60,7 @@ pipeline {
                     docker run -d \
                         --name $FLASK_CONTAINER \
                         --network $NETWORK \
-                        --group-add $(stat -c '%g' /var/run/docker.sock) \
-                        -v /var/run/docker.sock:/var/run/docker.sock \
+                        -e DOCKER_HOST=tcp://socket-proxy:2375 \
                         $FLASK_IMAGE
                 '''
             }
@@ -82,7 +95,7 @@ pipeline {
         always {
             echo "Cleanup containers and network"
             sh '''
-                docker rm -f $FLASK_CONTAINER $NGINX_CONTAINER 2>/dev/null || true
+                docker rm -f $FLASK_CONTAINER $NGINX_CONTAINER socket-proxy 2>/dev/null || true
                 docker network rm $NETWORK 2>/dev/null || true
             '''
         }
